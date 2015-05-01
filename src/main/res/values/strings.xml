@@ -16,4 +16,5 @@
     <string name="host">Host</string>
     <string name="connect">Connect</string>
     <string name="title_activity_debug">DebugActivity</string>
+    <string name="refresh">Refresh</string>
 </resources>

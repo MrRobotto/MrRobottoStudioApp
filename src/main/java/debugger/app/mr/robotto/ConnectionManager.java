@@ -1,6 +1,6 @@
 /*
  * MrRobotto Engine
- * Copyright (c) 2015, Aarón Negrín, All rights reserved.
+ * Copyright (c) 2015, Aarï¿½n Negrï¿½n, All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,8 +34,9 @@ import mr.robotto.utils.MrReader;
 public class ConnectionManager {
     private String mHost;
     private String mPort;
-    private static URL sURL;
+    private static URL sUrlRoot;
     private static URL sUrlUpdate;
+    private static URL sUrlFastUpdate;
     private Context mContext;
     private boolean mReadyUpdate = true;
 
@@ -52,8 +53,9 @@ public class ConnectionManager {
         mHost = host;
         mPort = port;
         try {
-            sURL = new URL("http://" + mHost + ":" + mPort+"/");
+            sUrlRoot = new URL("http://" + mHost + ":" + mPort+"/");
             sUrlUpdate = new URL("http://" + mHost + ":" + mPort+"/android-update/");
+            sUrlFastUpdate = new URL("http://" + mHost + ":" + mPort+"/fast-update/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -137,10 +139,10 @@ public class ConnectionManager {
                 }
             }
         };
-        if (sURL == null) {
+        if (sUrlRoot == null) {
             throw new RuntimeException("The host and port has not been set");
         }
-        task.execute(sURL);
+        task.execute(sUrlRoot);
     }
 
     public void poll() {
@@ -148,7 +150,7 @@ public class ConnectionManager {
         updater.execute(sUrlUpdate);
     }
 
-    public void requestUpdate() {
+    public void requestFastUpdate() {
         AsyncTask<URL, Void, String> task = new AsyncTask<URL, Void, String>() {
             @Override
             protected String doInBackground(URL... params) {
@@ -175,11 +177,8 @@ public class ConnectionManager {
                 if (s != null) {
                     try {
                         JSONObject obj = (JSONObject)new JSONTokener(s).nextValue();
-                        System.out.println("Tokenizo");
                         MrRobotto r = MrRobotto.getInstance();
                         r.loadSceneTree(obj);
-                        System.out.println("Delego a la escena");
-                        mReadyUpdate = true;
                         //synchronized (mReadyUpdate) {
                         //    mReadyUpdate.setBoolean(false);
                         //}
@@ -192,6 +191,6 @@ public class ConnectionManager {
         if (sUrlUpdate == null) {
             throw new RuntimeException("The host and port has not been set");
         }
-        task.execute(sUrlUpdate);
+        task.execute(sUrlFastUpdate);
     }
 }

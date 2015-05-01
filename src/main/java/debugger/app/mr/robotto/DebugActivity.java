@@ -1,6 +1,6 @@
 /*
  * MrRobotto Engine
- * Copyright (c) 2015, Aarón Negrín, All rights reserved.
+ * Copyright (c) 2015, Aarï¿½n Negrï¿½n, All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,46 +9,35 @@
 
 package debugger.app.mr.robotto;
 
+import android.app.ActionBar;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import mr.robotto.MrRobotto;
 import mr.robotto.ui.MrSurfaceView;
 
 
-public class DebugActivity extends ActionBarActivity {
+public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
 
     public static final int READY_REQUEST = 1;
 
     private String mHost;
     private String mPort;
     private ConnectionManager mConnectionManager;
-    private Thread mThread;
-
-    private Handler mHandler = new MyHandler();
-
-    private class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case DebugActivity.READY_REQUEST:
-                    // Invalidar vista para repintado
-                    //miVista.invalidate();
-                    break;
-            }
-            super.handleMessage(msg);
-        }
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
+
+        Button btn = (Button) findViewById(R.id.btnRefresh);
+        btn.setOnClickListener(this);
 
         MrSurfaceView view = (MrSurfaceView) findViewById(R.id.robotto);
         MrRobotto engine = MrRobotto.getInstance();
@@ -58,27 +47,7 @@ public class DebugActivity extends ActionBarActivity {
         mHost = getIntent().getStringExtra("host");
         mPort = getIntent().getStringExtra("port");
         mConnectionManager = new ConnectionManager(this, mHost, mPort);
-        mConnectionManager.poll();
-        //mConnectionManager.requestUpdate();
-
-        /*mThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                boolean update;
-                while(true) {
-                    synchronized (mConnectionManager) {
-                        update = mConnectionManager.isReadyUpdate();
-                    }
-                    if (update) {
-                        mConnectionManager.requestUpdate();
-                        synchronized (mConnectionManager) {
-                            mConnectionManager.setReadyUpdate(false);
-                        }
-                    }
-                }
-            }
-        });*/
-        //mThread.start();
+        //mConnectionManager.poll();
     }
 
     @Override
@@ -103,8 +72,24 @@ public class DebugActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.barRefresh) {
+            mConnectionManager.requestFastUpdate();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btnRefresh) {
+            mConnectionManager.requestFastUpdate();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        super.onBackPressed();
     }
 }
