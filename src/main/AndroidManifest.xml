@@ -8,7 +8,7 @@
   ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="debugger.app.mr.robotto" >
+    package="studio.mr.robotto" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ConnectActivity"
+            android:name="studio.mr.robotto.ConnectActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,8 +27,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DebugActivity"
-            android:label="@string/title_activity_debug" >
+            android:name="studio.mr.robotto.DebugActivity"
+            android:label="@string/app_name" >
         </activity>
     </application>
 

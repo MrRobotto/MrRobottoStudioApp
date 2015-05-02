@@ -12,11 +12,17 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/superdarkblue</item>
         <item name="android:actionBarStyle">@style/RedBar</item>
+        <item name="actionBarStyle">@style/RedBar</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="editTextColor">@android:color/white</item>
     </style>
 
-    <style name="RedBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">@android:color/holo_red_light</item>
+    <style name="RedBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/superorange</item>
+        <item name="background">@color/superorange</item>
     </style>
 
 </resources>

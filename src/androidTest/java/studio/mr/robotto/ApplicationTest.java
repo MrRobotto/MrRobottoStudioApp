@@ -7,7 +7,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package debugger.app.mr.robotto;
+package studio.mr.robotto;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

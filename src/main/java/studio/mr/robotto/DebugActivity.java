@@ -7,11 +7,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package debugger.app.mr.robotto;
+package studio.mr.robotto;
 
-import android.app.ActionBar;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -70,9 +67,7 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.barRefresh) {
+        if (id == R.id.barRefresh) {
             mConnectionManager.requestFastUpdate();
             return true;
         }

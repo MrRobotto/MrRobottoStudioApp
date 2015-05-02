@@ -55,6 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:text="@string/connect"
+        android:background="@color/supergreensuccess"
         android:id="@+id/btn_connect"/>
 
 </RelativeLayout>

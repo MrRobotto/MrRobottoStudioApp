@@ -7,7 +7,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package debugger.app.mr.robotto;
+package studio.mr.robotto;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -56,10 +56,6 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
