@@ -10,8 +10,8 @@
 
 <resources>
     <color name="superorange">#df691a</color>
-    <color name="superdarkblue">#2b3e50</color>
+    <color name="superdarkblue">#2B3E50</color>
     <color name="supergray">#4e5d6c</color>
     <color name="supergreensuccess">#5cb85c</color>
-    <color name="supergreenpressed">#449d44</color>
+    <color name="supergreenpressed">#449D44</color>
 </resources>

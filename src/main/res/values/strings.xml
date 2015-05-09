@@ -15,4 +15,6 @@
     <string name="host">Host</string>
     <string name="connect">Connect</string>
     <string name="refresh">Refresh</string>
+    <string name="default_port">8000</string>
+    <string name="default_ip_base">192.168.1.</string>
 </resources>

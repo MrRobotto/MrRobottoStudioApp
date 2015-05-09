@@ -1,6 +1,6 @@
 /*
  * MrRobotto Engine
- * Copyright (c) 2015, Aarón Negrín, All rights reserved.
+ * Copyright (c) 2015, Aarï¿½n Negrï¿½n, All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,9 +12,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
-
     defaultConfig {
-        applicationId "debugger.app.mr.robotto"
+        applicationId 'studio.mr.robotto'
         minSdkVersion 14
         targetSdkVersion 21
         versionCode 1
@@ -25,6 +24,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    productFlavors {
     }
 }
 

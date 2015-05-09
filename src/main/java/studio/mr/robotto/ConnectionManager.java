@@ -9,44 +9,44 @@
 
 package studio.mr.robotto;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 
 import mr.robotto.MrRobotto;
-import mr.robotto.utils.MrReader;
 
 /**
  * Created by aaron on 22/04/2015.
  */
 public class ConnectionManager {
+    public static final String UA = "MrRobottoStudio";
+
     private String mHost;
     private String mPort;
+    private String mServerSocketPort;
     private static URL sUrlRoot;
     private static URL sUrlUpdate;
-    private static URL sUrlFastUpdate;
-    private Context mContext;
-    private boolean mReadyUpdate = true;
+    private Activity mActivity;
 
-    public ConnectionManager(Context context, String host, String port) {
-        mContext = context;
+    public ConnectionManager(Activity activity, String host, String port) {
+        mActivity = activity;
         setHostPort(host, port);
     }
 
-    public ConnectionManager(Context context) {
-        mContext = context;
+    public ConnectionManager(Activity activity) {
+        mActivity = activity;
     }
 
     public void setHostPort(String host, String port) {
@@ -55,49 +55,13 @@ public class ConnectionManager {
         try {
             sUrlRoot = new URL("http://" + mHost + ":" + mPort+"/");
             sUrlUpdate = new URL("http://" + mHost + ":" + mPort+"/android-update/");
-            sUrlFastUpdate = new URL("http://" + mHost + ":" + mPort+"/fast-update/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
-    private static class RequestUpdater extends AsyncTask<URL, Void, String> {
-        @Override
-        protected String doInBackground(URL... params) {
-            URL url = params[0];
-            HttpURLConnection urlConnection = null;
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                if (urlConnection.getResponseCode() == 200) {
-                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                    String s = MrReader.read(in);
-                    return s;
-                } else {
-                    return null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            if (s != null) {
-                try {
-                    JSONObject obj = (JSONObject)new JSONTokener(s).nextValue();
-                    System.out.println("Tokenizo");
-                    MrRobotto r = MrRobotto.getInstance();
-                    r.loadSceneTree(obj);
-                    System.out.println("Delego a la escena");
-                    RequestUpdater task = new RequestUpdater();
-                    task.execute(sUrlUpdate);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    private static void setStudioUA(HttpURLConnection connection) {
+        connection.setRequestProperty("User-Agent",UA);
     }
 
     public void connect() {
@@ -108,7 +72,9 @@ public class ConnectionManager {
                 HttpURLConnection urlConnection = null;
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
+                    setStudioUA(urlConnection);
                     urlConnection.setConnectTimeout(5000);
+                    mServerSocketPort = urlConnection.getHeaderField("server_socket_port");
                     urlConnection.disconnect();
                     return urlConnection.getResponseCode();
                 } catch (MalformedURLException e) {
@@ -124,18 +90,19 @@ public class ConnectionManager {
             @Override
             protected void onCancelled() {
                 super.onCancelled();
-                Toast.makeText(mContext,"Server not active", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity,"Server not active", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             protected void onPostExecute(Integer code) {
-                if (code == 201) {
-                    Intent intent = new Intent(mContext, DebugActivity.class);
+                if (code == 200) {
+                    Intent intent = new Intent(mActivity, DebugActivity.class);
                     intent.putExtra("host",mHost);
                     intent.putExtra("port",mPort);
-                    mContext.startActivity(intent);
+                    intent.putExtra("server_socket",mServerSocketPort);
+                    mActivity.startActivity(intent);
                 } else {
-                    Toast.makeText(mContext,"Bad request", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity,"Bad request", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -145,25 +112,26 @@ public class ConnectionManager {
         task.execute(sUrlRoot);
     }
 
-    public void poll() {
-        RequestUpdater updater = new RequestUpdater();
-        updater.execute(sUrlUpdate);
-    }
-
-    public void requestFastUpdate() {
-        AsyncTask<URL, Void, String> task = new AsyncTask<URL, Void, String>() {
+    public void requestUpdate() {
+        AsyncTask<URL, Void, Void> task = new AsyncTask<URL, Void, Void>() {
             @Override
-            protected String doInBackground(URL... params) {
+            protected void onPreExecute() {
+                super.onPreExecute();
+                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(URL... params) {
                 URL url = params[0];
                 HttpURLConnection urlConnection = null;
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
+                    setStudioUA(urlConnection);
+                    urlConnection.setReadTimeout(10000);
                     if (urlConnection.getResponseCode() == 200) {
-                        InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                        String s = MrReader.read(in);
-                        return s;
-                    } else {
-                        return null;
+                        final InputStream in = urlConnection.getInputStream();
+                        MrRobotto.getInstance().loadSceneTree(in);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -172,25 +140,43 @@ public class ConnectionManager {
             }
 
             @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                if (s != null) {
-                    try {
-                        JSONObject obj = (JSONObject)new JSONTokener(s).nextValue();
-                        MrRobotto r = MrRobotto.getInstance();
-                        r.loadSceneTree(obj);
-                        //synchronized (mReadyUpdate) {
-                        //    mReadyUpdate.setBoolean(false);
-                        //}
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                if (result != null) {
+                    Toast.makeText(mActivity,"Error loading", Toast.LENGTH_SHORT).show();
                 }
+                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.GONE);
             }
         };
         if (sUrlUpdate == null) {
             throw new RuntimeException("The host and port has not been set");
         }
-        task.execute(sUrlFastUpdate);
+        task.execute(sUrlUpdate);
+    }
+
+    public void startListenerSocket() {
+        Thread thread = new Thread(new ListenerSocket());
+        thread.start();
+    }
+
+    private class ListenerSocket implements Runnable {
+
+        @Override
+        public void run() {
+            InputStream inputStream;
+            OutputStream outputStream;
+            try {
+                Socket socket = new Socket(mHost, Integer.valueOf(mServerSocketPort));
+                socket.setSoTimeout(500);
+                inputStream = socket.getInputStream();
+                DataInputStream dataInputStream = new DataInputStream(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+
+            }
+        }
     }
 }

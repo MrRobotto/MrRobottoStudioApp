@@ -15,9 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+
+import java.io.IOException;
+import java.net.Socket;
 
 import mr.robotto.MrRobotto;
 import mr.robotto.ui.MrSurfaceView;
+import studio.mr.robotto.socketlayer.StudioContext;
 
 
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
@@ -26,7 +31,10 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
     private String mHost;
     private String mPort;
+    private String mServerSocketPort;
     private ConnectionManager mConnectionManager;
+    private ProgressBar mProgressBar;
+    private StudioContext mStudioContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +42,7 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
         setContentView(R.layout.activity_debug);
 
         Button btn = (Button) findViewById(R.id.btnRefresh);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         btn.setOnClickListener(this);
 
         MrSurfaceView view = (MrSurfaceView) findViewById(R.id.robotto);
@@ -43,12 +52,52 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
         mHost = getIntent().getStringExtra("host");
         mPort = getIntent().getStringExtra("port");
+        mServerSocketPort = getIntent().getStringExtra("server_socket");
         mConnectionManager = new ConnectionManager(this, mHost, mPort);
         //mConnectionManager.poll();
+
+        startListenerSocket();
+    }
+
+    private void startListenerSocket() {
+        Thread thread = new Thread(new ListenerSocket(this));
+        thread.start();
+    }
+
+    public void requestUpdate() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mConnectionManager.requestUpdate();
+            }
+        });
+    }
+
+    private class ListenerSocket implements Runnable {
+
+        private DebugActivity mDebugActivity;
+        public ListenerSocket(DebugActivity debugActivity) {
+            mDebugActivity = debugActivity;
+        }
+
+        @Override
+        public void run() {
+            Socket socket = null;
+            try {
+                socket = new Socket(mHost, Integer.parseInt(mServerSocketPort));
+                mStudioContext = new StudioContext(mDebugActivity, socket);
+                mStudioContext.initContext();
+                mStudioContext.processInputData();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
+        mStudioContext.closeContext();
         super.onDestroy();
     }
 
@@ -68,7 +117,7 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.barRefresh) {
-            mConnectionManager.requestFastUpdate();
+            mConnectionManager.requestUpdate();
             return true;
         }
 
@@ -78,13 +127,13 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.btnRefresh) {
-            mConnectionManager.requestFastUpdate();
+            mConnectionManager.requestUpdate();
         }
     }
 
     @Override
     public void onBackPressed() {
-
+        mStudioContext.closeContext();
         super.onBackPressed();
     }
 }

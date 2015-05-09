@@ -9,6 +9,6 @@
 
 <menu
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".ConnectActivity">
+      tools:activity=".ConnectActivity">
 
 </menu>
