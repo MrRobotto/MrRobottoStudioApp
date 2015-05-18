@@ -133,7 +133,6 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
     @Override
     public void onBackPressed() {
-        mStudioContext.closeContext();
         super.onBackPressed();
     }
 }

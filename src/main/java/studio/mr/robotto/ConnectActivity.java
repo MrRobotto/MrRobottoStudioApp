@@ -10,6 +10,7 @@
 package studio.mr.robotto;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import android.widget.EditText;
 
 
 public class ConnectActivity extends ActionBarActivity implements View.OnClickListener {
+
+    public static final int CONNECT_ID = 0;
 
     private ConnectionManager mConnectionManager = null;
     private SharedPreferences mPreferences;
@@ -69,5 +72,15 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
         mPreferences.edit().putString(hostKey, host).apply();
         mConnectionManager.setHostPort(host, port);
         mConnectionManager.connect();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CONNECT_ID) {
+            //if (resultCode == RESULT_OK) {
+                mConnectionManager.disconnect();
+            //}
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

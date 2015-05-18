@@ -37,6 +37,7 @@ public class ConnectionManager {
     private String mPort;
     private String mServerSocketPort;
     private static URL sUrlRoot;
+    private static URL sUrlDisconnect;
     private static URL sUrlUpdate;
     private Activity mActivity;
 
@@ -53,8 +54,9 @@ public class ConnectionManager {
         mHost = host;
         mPort = port;
         try {
-            sUrlRoot = new URL("http://" + mHost + ":" + mPort+"/");
-            sUrlUpdate = new URL("http://" + mHost + ":" + mPort+"/android-update/");
+            sUrlRoot = new URL("http://" + mHost + ":" + mPort+"/android/connect");
+            sUrlDisconnect = new URL("http://"+mHost+":"+mPort+"/android/disconnect");
+            sUrlUpdate = new URL("http://" + mHost + ":" + mPort+"/android/update/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -99,8 +101,9 @@ public class ConnectionManager {
                     Intent intent = new Intent(mActivity, DebugActivity.class);
                     intent.putExtra("host",mHost);
                     intent.putExtra("port",mPort);
-                    intent.putExtra("server_socket",mServerSocketPort);
-                    mActivity.startActivity(intent);
+                    intent.putExtra("server_socket", mServerSocketPort);
+                    //mActivity.startActivity(intent);
+                    mActivity.startActivityForResult(intent, ConnectActivity.CONNECT_ID);
                 } else {
                     Toast.makeText(mActivity,"Bad request", Toast.LENGTH_SHORT).show();
                 }
@@ -110,6 +113,47 @@ public class ConnectionManager {
             throw new RuntimeException("The host and port has not been set");
         }
         task.execute(sUrlRoot);
+    }
+
+    public void disconnect() {
+        AsyncTask<URL, Void, Integer> task = new AsyncTask<URL, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(URL... params) {
+                URL url = params[0];
+                HttpURLConnection urlConnection = null;
+                try {
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.disconnect();
+                    return urlConnection.getResponseCode();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    cancel(true);
+                }
+                return -1;
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                Toast.makeText(mActivity,"Server not active", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            protected void onPostExecute(Integer code) {
+                if (code == 200) {
+                } else {
+                    Toast.makeText(mActivity,"Bad request", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        if (sUrlDisconnect == null) {
+            throw new RuntimeException("The host and port has not been set");
+        }
+        task.execute(sUrlDisconnect);
     }
 
     public void requestUpdate() {
