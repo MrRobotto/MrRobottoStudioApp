@@ -71,14 +71,14 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
         String port = portView.getText().toString();
         mPreferences.edit().putString(hostKey, host).apply();
         mConnectionManager.setHostPort(host, port);
-        mConnectionManager.connect();
+        mConnectionManager.isServerActive();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CONNECT_ID) {
             //if (resultCode == RESULT_OK) {
-                mConnectionManager.disconnect();
+                //mConnectionManager.disconnect();
             //}
         }
         super.onActivityResult(requestCode, resultCode, data);
