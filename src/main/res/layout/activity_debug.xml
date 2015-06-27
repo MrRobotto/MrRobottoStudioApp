@@ -14,28 +14,28 @@
                 tools:activity="studio.mr.robotto.DebugActivity">
 
     <view
+        android:id="@+id/robotto"
+        class="mr.robotto.engine.ui.MrSurfaceView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="mr.robotto.ui.MrSurfaceView"
-        android:id="@+id/robotto"/>
+        android:layout_height="match_parent"/>
 
     <Button
+        android:id="@+id/btnRefresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/refresh"
-        android:id="@+id/btnRefresh"
-        android:background="@color/supergray"
         android:layout_alignBottom="@+id/robotto"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom"
+        android:background="@color/supergray"
+        android:text="@string/refresh"/>
 
     <ProgressBar
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:id="@+id/progressBar"
         android:layout_centerInParent="true"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
 </RelativeLayout>

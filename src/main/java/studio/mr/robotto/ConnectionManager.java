@@ -28,21 +28,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import mr.robotto.MrRobottoEngine;
-import mr.robotto.utils.MrStreamReader;
+import mr.robotto.engine.utils.MrStreamReader;
 
 /**
  * Created by aaron on 22/04/2015.
  */
 public class ConnectionManager {
     public static final String UA = "MrRobottoStudio";
-
-    private String mHost;
-    private String mPort;
     private static URL sUrlRoot;
     private static URL sUrlConnect;
     private static URL sUrlDisconnect;
     private static URL sUrlUpdate;
     private static URL sNeedUpdate;
+    private String mHost;
+    private String mPort;
     private Activity mActivity;
     private NeedUpdateTask mUpdater;
 
@@ -232,6 +231,73 @@ public class ConnectionManager {
         task.execute(sUrlDisconnect);
     }
 
+    private void cancelUpdater() {
+        if (mUpdater == null) {
+            return;
+        }
+        if (!mUpdater.isCancelled()) {
+            mUpdater.cancel(true);
+        }
+        while (!mUpdater.isCancelled()) {
+        }
+        mUpdater = null;
+    }
+
+    public void startNeedUpdateRequests() {
+        cancelUpdater();
+        mUpdater = new NeedUpdateTask();
+        mUpdater.execute(sNeedUpdate);
+    }
+
+    public void stopNeedUpdateRequests() {
+        cancelUpdater();
+    }
+
+    public void requestUpdate() {
+        AsyncTask<URL, Void, Void> task = new AsyncTask<URL, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                stopNeedUpdateRequests();
+                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(URL... params) {
+                URL url = params[0];
+                HttpURLConnection urlConnection = null;
+                try {
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    setAndroidHeaders(urlConnection);
+                    urlConnection.setReadTimeout(10000);
+                    if (urlConnection.getResponseCode() == 200) {
+                        final InputStream in = urlConnection.getInputStream();
+                        getEngine().loadSceneTree(in);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                if (result != null) {
+                    Toast.makeText(mActivity, "Error loading", Toast.LENGTH_SHORT).show();
+                }
+                ProgressBar progressBar = (ProgressBar) mActivity.findViewById(R.id.progressBar);
+                progressBar.setVisibility(View.GONE);
+                startNeedUpdateRequests();
+            }
+        };
+        if (sUrlUpdate == null) {
+            throw new RuntimeException("The host and port has not been set");
+        }
+        task.execute(sUrlUpdate);
+    }
+
     private class NeedUpdateTask extends AsyncTask<URL, Void, Boolean> {
 
         private boolean doesNeedUpdate(String response) throws JSONException {
@@ -283,71 +349,5 @@ public class ConnectionManager {
                 startNeedUpdateRequests();
             }
         }
-    }
-
-    private void cancelUpdater() {
-        if (mUpdater == null) {
-            return;
-        }
-        if (!mUpdater.isCancelled()) {
-            mUpdater.cancel(true);
-        }
-        while (!mUpdater.isCancelled()) {}
-        mUpdater = null;
-    }
-
-    public void startNeedUpdateRequests() {
-        cancelUpdater();
-        mUpdater = new NeedUpdateTask();
-        mUpdater.execute(sNeedUpdate);
-    }
-
-    public void stopNeedUpdateRequests() {
-        cancelUpdater();
-    }
-
-    public void requestUpdate() {
-        AsyncTask<URL, Void, Void> task = new AsyncTask<URL, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                stopNeedUpdateRequests();
-                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Void doInBackground(URL... params) {
-                URL url = params[0];
-                HttpURLConnection urlConnection = null;
-                try {
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    setAndroidHeaders(urlConnection);
-                    urlConnection.setReadTimeout(10000);
-                    if (urlConnection.getResponseCode() == 200) {
-                        final InputStream in = urlConnection.getInputStream();
-                        getEngine().loadSceneTree(in);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
-                if (result != null) {
-                    Toast.makeText(mActivity,"Error loading", Toast.LENGTH_SHORT).show();
-                }
-                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.GONE);
-                startNeedUpdateRequests();
-            }
-        };
-        if (sUrlUpdate == null) {
-            throw new RuntimeException("The host and port has not been set");
-        }
-        task.execute(sUrlUpdate);
     }
 }

@@ -9,8 +9,8 @@
 
 package studio.mr.robotto;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import mr.robotto.MrRobottoEngine;
-import mr.robotto.ui.MrSurfaceView;
+import mr.robotto.engine.ui.MrSurfaceView;
 
 
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
@@ -83,13 +83,11 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
     @Override
     protected void onResume() {
         mConnectionManager.connect();
-        //mConnectionManager.startNeedUpdateRequests();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        //mConnectionManager.stopNeedUpdateRequests();
         mConnectionManager.disconnect();
         super.onPause();
     }
