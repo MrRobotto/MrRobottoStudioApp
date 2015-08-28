@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -95,10 +96,10 @@ public class ConnectionManager {
                     urlConnection.setConnectTimeout(5000);
                     return urlConnection.getResponseCode();
                 } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                    Log.e("StudioError", e.getMessage());
                     cancel(true);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("StudioError", e.getMessage());
                     cancel(true);
                 }
                 return -1;

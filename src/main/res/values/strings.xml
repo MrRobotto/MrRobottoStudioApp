@@ -17,4 +17,7 @@
     <string name="refresh">Refresh</string>
     <string name="default_port">8000</string>
     <string name="default_ip_base">192.168.1.</string>
+    <string name="qr_register">QR Registration</string>
+    <string name="manual_register">Manual Registration</string>
+    <string name="registerdevice">Register Device</string>
 </resources>

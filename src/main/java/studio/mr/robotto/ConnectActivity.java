@@ -12,8 +12,8 @@ package studio.mr.robotto;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +27,6 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
 
     private ConnectionManager mConnectionManager = null;
     private SharedPreferences mPreferences;
-    private String packageName = "debugger.app.mr.robotto";
     private String hostKey = "host";
     private String hostDefault = "192.168.1.";
 
@@ -35,7 +34,6 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
-        //mPreferences = this.getSharedPreferences(packageName, Context.MODE_PRIVATE);
         mPreferences = getPreferences(Context.MODE_PRIVATE);
         String host = mPreferences.getString(hostKey, hostDefault);
         EditText hostView = (EditText) findViewById(R.id.host);
@@ -47,7 +45,6 @@ public class ConnectActivity extends ActionBarActivity implements View.OnClickLi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_connect, menu);
         return true;
     }
