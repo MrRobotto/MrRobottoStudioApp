@@ -9,45 +9,61 @@
 
 package studio.mr.robotto;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import mr.robotto.MrRobottoEngine;
 import mr.robotto.engine.ui.MrSurfaceView;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
+import studio.mr.robotto.services.MrrFileServices;
+import studio.mr.robotto.services.TokenAdder;
+import studio.mr.robotto.services.models.DeviceData;
+import studio.mr.robotto.services.models.MrrFileData;
+import studio.mr.robotto.services.models.SessionData;
 
 
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
 
     public static final int READY_REQUEST = 1;
 
-    private String mHost;
-    private String mPort;
-    private ConnectionManager mConnectionManager;
     private ProgressBar mProgressBar;
     private MrRobottoEngine mEngine;
+
+    private MrrFileServices mMrrFileServices;
+    private SharedPreferences mPreferences;
+    private MrrFileData mMrrFile;
+    private DeviceData mDevice;
+    private SessionData mSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
 
-        Button btn = (Button) findViewById(R.id.btnRefresh);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        Button btn = (Button) findViewById(R.id.refresh_button);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         btn.setOnClickListener(this);
 
         MrSurfaceView view = (MrSurfaceView) findViewById(R.id.robotto);
         mEngine = new MrRobottoEngine(this, view);
-
-        mHost = getIntent().getStringExtra("host");
-        mPort = getIntent().getStringExtra("port");
-        mConnectionManager = new ConnectionManager(this, mHost, mPort);
-
-        mConnectionManager.setEngine(mEngine);
     }
 
     @Override
@@ -66,7 +82,7 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.barRefresh) {
-            mConnectionManager.requestUpdate();
+            //mConnectionManager.requestUpdate();
             return true;
         }
 
@@ -75,20 +91,95 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btnRefresh) {
-            mConnectionManager.requestUpdate();
+        if (v.getId() == R.id.refresh_button) {
+            //mConnectionManager.requestUpdate();
+            requestSelectedMrr();
         }
     }
 
     @Override
     protected void onResume() {
-        mConnectionManager.connect();
+        //mConnectionManager.connect();
         super.onResume();
+        mPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        String deviceString = mPreferences.getString(Constants.DEVICE_KEY, null);
+        String sessionString = mPreferences.getString(Constants.SESSION_KEY, null);
+        if (deviceString != null && sessionString != null) {
+            Gson gson = new Gson();
+            mDevice = gson.fromJson(deviceString, DeviceData.class);
+            mSession = gson.fromJson(sessionString, SessionData.class);
+            createRestAdapter(mSession);
+        }
     }
 
     @Override
     protected void onPause() {
-        mConnectionManager.disconnect();
+        //mConnectionManager.disconnect();
         super.onPause();
+    }
+
+    private void createRestAdapter(SessionData sessionData) {
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(sessionData.getUrl())
+                .setRequestInterceptor(new TokenAdder(sessionData.getToken()))
+                .build();
+
+        mMrrFileServices = restAdapter.create(MrrFileServices.class);
+    }
+
+    private void requestSelectedMrr() {
+        final Context context = this;
+        mMrrFileServices.getSelectedMrr(new Callback<MrrFileData>() {
+            @Override
+            public void success(MrrFileData mrrFileData, Response response) {
+                mMrrFile = mrrFileData;
+                Toast.makeText(context, mrrFileData.toString(), Toast.LENGTH_LONG).show();
+                requestMrrFile();
+                //requestUpdate();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                logError(context, error);
+            }
+        });
+    }
+
+    private void requestMrrFile() {
+        final Context context = this;
+        mMrrFileServices.downloadSelected(mMrrFile.getId(), new Callback<Response>() {
+            @Override
+            public void success(Response s, Response response) {
+                try {
+                    InputStream in = s.getBody().in();
+                    mEngine.loadSceneTreeAsync(in);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                logError(context, error);
+            }
+        });
+    }
+
+    private void logError(Context context, RetrofitError error) {
+        try {
+            String message = new String(((TypedByteArray) error.getResponse().getBody()).getBytes());
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            Log.e("failure", message);
+            return;
+        } catch (NullPointerException ignored) {
+
+        }
+        try {
+            String message = error.getMessage();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            Log.e("failure", message);
+        } catch (NullPointerException ignored) {
+
+        }
     }
 }

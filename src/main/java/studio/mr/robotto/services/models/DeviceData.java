@@ -1,4 +1,4 @@
-package studio.mr.robotto.services;
+package studio.mr.robotto.services.models;
 
 /**
  * Created by aaron on 27/08/2015.

@@ -27,21 +27,16 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
-import studio.mr.robotto.services.DeviceData;
 import studio.mr.robotto.services.MainDevicesServices;
-import studio.mr.robotto.services.SessionData;
 import studio.mr.robotto.services.TokenAdder;
+import studio.mr.robotto.services.models.DeviceData;
+import studio.mr.robotto.services.models.SessionData;
 import studio.mr.robotto.utils.Devices;
 
 public class ConnectionActivity extends ActionBarActivity implements View.OnClickListener {
 
-    public static final int QR_INTENT = 0;
-    public static final String DEVICE_KEY = "device";
-    public static final String SESSION_KEY = "session";
-
     private SharedPreferences mPreferences;
 
-    private RestAdapter mRestAdapter;
     private MainDevicesServices mDevicesServices;
     private DeviceData mDevice;
     private SessionData mSession;
@@ -62,9 +57,9 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        mPreferences = getPreferences(Context.MODE_PRIVATE);
-        String deviceString = mPreferences.getString(DEVICE_KEY, null);
-        String sessionString = mPreferences.getString(SESSION_KEY, null);
+        mPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        String deviceString = mPreferences.getString(Constants.DEVICE_KEY, null);
+        String sessionString = mPreferences.getString(Constants.SESSION_KEY, null);
         if (deviceString != null && sessionString != null) {
             Gson gson = new Gson();
             mDevice = gson.fromJson(deviceString, DeviceData.class);
@@ -111,7 +106,7 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
         try {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE"); // "PRODUCT_MODE for bar codes
-            startActivityForResult(intent, QR_INTENT);
+            startActivityForResult(intent, Constants.QR_INTENT);
         } catch (Exception e) {
             Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
             Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
@@ -122,7 +117,7 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == QR_INTENT) {
+        if (requestCode == Constants.QR_INTENT) {
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
                 try {
@@ -146,12 +141,12 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
     }
 
     private void createRestAdapter(SessionData sessionData) {
-        mRestAdapter = new RestAdapter.Builder()
+        RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(sessionData.getUrl())
                 .setRequestInterceptor(new TokenAdder(sessionData.getToken()))
                 .build();
 
-        mDevicesServices = mRestAdapter.create(MainDevicesServices.class);
+        mDevicesServices = restAdapter.create(MainDevicesServices.class);
     }
 
     private void connectStudio() {
@@ -163,9 +158,9 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
         mDevicesServices.connectDevice(mDevice.getId(), new Callback<String>() {
             @Override
             public void success(String s, Response response) {
-                //Intent intent = new Intent(context, DebugActivity.class);
-                //startActivity(intent);
-                Toast.makeText(context, "connected", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(context, DebugActivity.class);
+                startActivity(intent);
+                //Toast.makeText(context, "connected", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -192,8 +187,10 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
                 Gson gson = new Gson();
                 String jsonDevice = gson.toJson(mDevice);
                 String jsonSession = gson.toJson(mSession);
-                mPreferences.edit().putString(DEVICE_KEY, jsonDevice).apply();
-                mPreferences.edit().putString(SESSION_KEY, jsonSession).apply();
+                SharedPreferences.Editor editor = mPreferences.edit();
+                editor.putString(Constants.DEVICE_KEY, jsonDevice);
+                editor.putString(Constants.SESSION_KEY, jsonSession);
+                editor.commit();
                 connectStudio();
             }
 

@@ -116,8 +116,8 @@ public class ConnectionManager {
                 if (code == 200) {
                     Intent intent = new Intent(mActivity, DebugActivity.class);
                     intent.putExtra("host",mHost);
-                    intent.putExtra("port",mPort);
-                    mActivity.startActivityForResult(intent, ConnectActivity.CONNECT_ID);
+                    intent.putExtra("port", mPort);
+                    //mActivity.startActivityForResult(intent, ConnectActivity.CONNECT_ID);
                 } else {
                     Toast.makeText(mActivity,"Bad request", Toast.LENGTH_SHORT).show();
                 }
@@ -260,7 +260,7 @@ public class ConnectionManager {
             protected void onPreExecute() {
                 super.onPreExecute();
                 stopNeedUpdateRequests();
-                ProgressBar progressBar = (ProgressBar)mActivity.findViewById(R.id.progressBar);
+                ProgressBar progressBar = (ProgressBar) mActivity.findViewById(R.id.progress_bar);
                 progressBar.setVisibility(View.VISIBLE);
             }
 
@@ -288,7 +288,7 @@ public class ConnectionManager {
                 if (result != null) {
                     Toast.makeText(mActivity, "Error loading", Toast.LENGTH_SHORT).show();
                 }
-                ProgressBar progressBar = (ProgressBar) mActivity.findViewById(R.id.progressBar);
+                ProgressBar progressBar = (ProgressBar) mActivity.findViewById(R.id.progress_bar);
                 progressBar.setVisibility(View.GONE);
                 startNeedUpdateRequests();
             }
