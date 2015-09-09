@@ -1,4 +1,4 @@
-package studio.mr.robotto;
+package studio.mr.robotto.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -27,7 +26,9 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
-import studio.mr.robotto.services.MainDevicesServices;
+import studio.mr.robotto.R;
+import studio.mr.robotto.commons.Constants;
+import studio.mr.robotto.services.DevicesServices;
 import studio.mr.robotto.services.TokenAdder;
 import studio.mr.robotto.services.models.DeviceData;
 import studio.mr.robotto.services.models.SessionData;
@@ -37,7 +38,7 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
 
     private SharedPreferences mPreferences;
 
-    private MainDevicesServices mDevicesServices;
+    private DevicesServices mDevicesServices;
     private DeviceData mDevice;
     private SessionData mSession;
 
@@ -46,12 +47,12 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connection);
 
-        Button qrRegistration = (Button) findViewById(R.id.qr_register_button);
-        Button manualRegistration = (Button) findViewById(R.id.manual_register_button);
-        Button connectButton = (Button) findViewById(R.id.connect_button);
-        qrRegistration.setOnClickListener(this);
-        manualRegistration.setOnClickListener(this);
-        connectButton.setOnClickListener(this);
+        //Button qrRegistration = (Button) findViewById(R.id.qr_register_button);
+        //Button manualRegistration = (Button) findViewById(R.id.manual_register_button);
+        //Button connectButton = (Button) findViewById(R.id.connect_button);
+        //qrRegistration.setOnClickListener(this);
+        //manualRegistration.setOnClickListener(this);
+        //connectButton.setOnClickListener(this);
     }
 
     @Override
@@ -92,13 +93,13 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.connect_button) {
+        /*if (v.getId() == R.id.connect_button) {
             connectStudio();
         } else if (v.getId() == R.id.qr_register_button) {
             startQRRegistration();
         } else if (v.getId() == R.id.manual_register_button) {
             Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
 
@@ -122,11 +123,10 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
                 String contents = data.getStringExtra("SCAN_RESULT");
                 try {
                     JSONObject o = (JSONObject) new JSONTokener(contents).nextValue();
-                    String path = o.getString("path");
                     String token = o.getString("token");
                     String baseUrl = o.getString("base_url");
                     int attempId = o.getInt("attemp_id");
-                    SessionData sessionData = new SessionData(baseUrl + path, token);
+                    SessionData sessionData = new SessionData(baseUrl, token);
                     createRestAdapter(sessionData);
                     registerDevice(sessionData, attempId);
                 } catch (JSONException e) {
@@ -146,7 +146,7 @@ public class ConnectionActivity extends ActionBarActivity implements View.OnClic
                 .setRequestInterceptor(new TokenAdder(sessionData.getToken()))
                 .build();
 
-        mDevicesServices = restAdapter.create(MainDevicesServices.class);
+        mDevicesServices = restAdapter.create(DevicesServices.class);
     }
 
     private void connectStudio() {

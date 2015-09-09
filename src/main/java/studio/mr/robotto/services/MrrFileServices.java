@@ -12,10 +12,10 @@ import studio.mr.robotto.services.models.MrrFileData;
  */
 public interface MrrFileServices {
 
-    @GET("/mrrfiles/selected")
+    @GET("/api/mrrfiles/selected")
     void getSelectedMrr(Callback<MrrFileData> callback);
 
-    @GET("/mrrfiles/{id}/download")
+    @GET("/api/mrrfiles/{id}/download")
     @Streaming
     void downloadSelected(@Path("id") int id, Callback<Response> callback);
 }

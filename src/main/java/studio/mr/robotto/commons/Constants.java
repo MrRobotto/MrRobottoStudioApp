@@ -1,4 +1,4 @@
-package studio.mr.robotto;
+package studio.mr.robotto.commons;
 
 /**
  * Created by aaron on 28/08/2015.

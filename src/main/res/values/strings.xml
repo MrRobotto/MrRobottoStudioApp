@@ -18,6 +18,19 @@
     <string name="default_port">8000</string>
     <string name="default_ip_base">192.168.1.</string>
     <string name="qr_register">QR Registration</string>
-    <string name="manual_register">Manual Registration</string>
+    <string name="manual_register">Register Device</string>
     <string name="registerdevice">Register Device</string>
+
+    <string name="title_section_connect">Connect</string>
+    <string name="title_section_register">Register Device</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="password">Password</string>
+    <string name="url">URL</string>
+    <string name="username">Username</string>
+    <string name="start_qr">Stop QR Scanner</string>
+    <string name="stop_qr">Start QR Scanner</string>
+
 </resources>

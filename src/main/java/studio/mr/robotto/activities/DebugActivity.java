@@ -7,7 +7,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package studio.mr.robotto;
+package studio.mr.robotto.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -33,6 +33,8 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
+import studio.mr.robotto.R;
+import studio.mr.robotto.commons.Constants;
 import studio.mr.robotto.services.MrrFileServices;
 import studio.mr.robotto.services.TokenAdder;
 import studio.mr.robotto.services.models.DeviceData;

@@ -10,6 +10,7 @@
 
 <resources>
     <color name="superorange">#df691a</color>
+    <color name="superdarkorange">#dc4d00</color>
     <color name="superdarkblue">#2B3E50</color>
     <color name="supergray">#4e5d6c</color>
     <color name="supergreensuccess">#5cb85c</color>

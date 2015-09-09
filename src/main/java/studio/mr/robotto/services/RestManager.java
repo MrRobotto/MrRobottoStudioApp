@@ -7,7 +7,7 @@ import retrofit.RestAdapter;
  */
 public class RestManager {
     private static RestAdapter sRestAdapter = null;
-    private static MainDevicesServices sDevicesServices = null;
+    private static DevicesServices sDevicesServices = null;
 
     public static void createRestAdapter(String url, String token) {
 

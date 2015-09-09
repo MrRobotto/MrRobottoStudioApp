@@ -10,11 +10,20 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/superdarkblue</item>
-        <item name="android:actionBarStyle">@style/RedBar</item>
+        <!--<item name="android:actionBarStyle">@style/RedBar</item>
         <item name="actionBarStyle">@style/RedBar</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="editTextColor">@android:color/white</item>-->
+        <!--   your app branding color for the app bar -->
+        <item name="colorPrimary">@color/superorange</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">@color/superdarkorange</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">@color/supergreensuccess</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:editTextColor">@android:color/white</item>
         <item name="editTextColor">@android:color/white</item>
@@ -23,6 +32,11 @@
     <style name="RedBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/superorange</item>
         <item name="background">@color/superorange</item>
+    </style>
+
+    <style name="OrangeTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabBackground">@color/superorange</item>
+        <item name="tabIndicatorColor">@color/supergreensuccess</item>
     </style>
 
 </resources>
