@@ -41,7 +41,7 @@ import studio.mr.robotto.services.models.DeviceData;
 import studio.mr.robotto.services.models.MrrFileData;
 import studio.mr.robotto.services.models.SessionData;
 
-
+//TODO: Change to AppCompatActivity
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
 
     public static final int READY_REQUEST = 1;
