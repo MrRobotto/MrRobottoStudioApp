@@ -6,7 +6,7 @@ package studio.mr.robotto.services.models;
 public class MrrFileData {
 
     private int id;
-    private String filename;
+    private String base_name;
     private boolean is_selected;
     private String user;
 
@@ -18,12 +18,12 @@ public class MrrFileData {
         this.id = id;
     }
 
-    public String getFilename() {
-        return filename;
+    public String getBase_name() {
+        return base_name;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setBase_name(String filename) {
+        this.base_name = filename;
     }
 
     public boolean is_selected() {
@@ -46,7 +46,7 @@ public class MrrFileData {
     public String toString() {
         return "MrrFileData{" +
                 "id=" + id +
-                ", filename='" + filename + '\'' +
+                ", base_name='" + base_name + '\'' +
                 ", is_selected=" + is_selected +
                 ", user='" + user + '\'' +
                 '}';

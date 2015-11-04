@@ -11,6 +11,7 @@ package studio.mr.robotto.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -20,12 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.io.InputStream;
-
 import mr.robotto.MrRobottoEngine;
 import mr.robotto.engine.ui.MrSurfaceView;
 import retrofit.Callback;
@@ -40,6 +36,9 @@ import studio.mr.robotto.services.TokenAdder;
 import studio.mr.robotto.services.models.DeviceData;
 import studio.mr.robotto.services.models.MrrFileData;
 import studio.mr.robotto.services.models.SessionData;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 //TODO: Change to AppCompatActivity
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
@@ -147,6 +146,31 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
         });
     }
 
+    private void showMrrFile(InputStream in) {
+        final ProgressBar bar = mProgressBar;
+        AsyncTask<InputStream, Void, Void> task = new AsyncTask<InputStream, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                bar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(InputStream... inputStreams) {
+                InputStream in = inputStreams[0];
+                mEngine.loadSceneTree(in);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                bar.setVisibility(View.GONE);
+            }
+        };
+        task.execute(in);
+    }
+
     private void requestMrrFile() {
         final Context context = this;
         mMrrFileServices.downloadSelected(mMrrFile.getId(), new Callback<Response>() {
@@ -154,7 +178,8 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
             public void success(Response s, Response response) {
                 try {
                     InputStream in = s.getBody().in();
-                    mEngine.loadSceneTreeAsync(in);
+                    //mEngine.loadSceneTreeAsync(in);
+                    showMrrFile(in);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
