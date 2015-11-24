@@ -21,8 +21,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.google.gson.Gson;
-import mr.robotto.MrRobottoEngine;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import mr.robotto.MrEngine;
 import mr.robotto.engine.ui.MrSurfaceView;
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -37,16 +42,13 @@ import studio.mr.robotto.services.models.DeviceData;
 import studio.mr.robotto.services.models.MrrFileData;
 import studio.mr.robotto.services.models.SessionData;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 //TODO: Change to AppCompatActivity
 public class DebugActivity extends ActionBarActivity implements View.OnClickListener {
 
     public static final int READY_REQUEST = 1;
 
     private ProgressBar mProgressBar;
-    private MrRobottoEngine mEngine;
+    private MrEngine mEngine;
 
     private MrrFileServices mMrrFileServices;
     private SharedPreferences mPreferences;
@@ -64,7 +66,7 @@ public class DebugActivity extends ActionBarActivity implements View.OnClickList
         btn.setOnClickListener(this);
 
         MrSurfaceView view = (MrSurfaceView) findViewById(R.id.robotto);
-        mEngine = new MrRobottoEngine(this, view);
+        mEngine = new MrEngine(this, view);
     }
 
     @Override
